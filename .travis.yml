@@ -9,18 +9,25 @@ env:
 before_install:
   - gem install bundler
   - bundle install
-  - docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}" "${DOCKER_REGISTRY_COM}"
-  - docker pull "${DOCKER_REGISTRY_COM}"/"${NAME}":latest || true
+  - docker login -e="${HUB_EMAIL}" -u="${HUB_USERNAME}" -p="${HUB_PASSWORD}"
+  - docker pull solinea/"${NAME}":latest || true
 install:
   - docker build -t "${NAME}" .
 before_deploy:
-  - docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}" "${DOCKER_REGISTRY}"
-  - docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}" "${DOCKER_REGISTRY_DEV}"
+  - docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+    "${DOCKER_REGISTRY}"
+  - docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+    "${DOCKER_REGISTRY_DEV}"
 deploy:
   - provider: script
-    script: scripts/push-artifactory.sh
+    script: hack/bin/push-images-release
     on:
-      all_branches: true
+      tags: true
+  - provider: script
+    script: hack/bin/push-images-master
+    on:
+      branch: master
 notifications:
+  email: false
   slack:
-    secure: DtkaB63oWN9hYZ2MutTgMt9sqgoyvuFJrY9le00URuQB7Xr0HI0zBSKmUGm1spKx9Ta0QGiD2v211IZsvJtX+yNnIcA/sVQ5ss7rNa3VyGfsyyOtILkBrwtpwUbo2V424qgdW5CNS9j3vHOmmGAFJl0ceMNOgqi+z9izV3fqntHt8wMbAQw/m/GjpJzMTsPek2sMTmYKoN2A2W+ZnjjYxAupV+zy0/swbgPP0McK4RJG/LhMPrhZm3BSunNYUC6rL+XzEGV9nU58ULaUEFc+bQB5bpdAEfynOvosRJ2bMVh5PmZq3FyD85OTqvjuWYgDSLFGtLdphQrnHFblNSEf1/Ue3rpPY4tcywQpy2ocL+RHLypoD9Jw2RukTkgW0JeWuY10SquOFeKXh4qv7Fzxcd2iILh2Q6Hn08ikRIA5vaU5CVbaWc51OPh3D9+TTeeq8MqTbUvNhcLOvH8GjhxBDAR7DywVbNDzgNiekCXkbWJBpoeMOURnuuosJ9SPNKxmjz0EugCfin/pl6CfCUfpaRB1Mq3sTFFWtUYWx20l7U7KkBs+QlSILvTpkfw/CFj7tlcgWmlEhn6NBJ2+HFkQrndTCzcsvgQq3y8utcl4x6mQjRAnOoaN4zylra9qwDaGCg4DGf2kQDNIFZzAPBbvt0jK8fHebaU8/aaRkYAKAw8=
+    secure: glokCWU7TGnMQofiQdZAVvggdoCl+99eRSSNH4LQJeyyAWEvC3e63nOTBGM5JnmGKx1WeGNM9DKp/fHINAttQSeKQ0aw0GxQIt+IAwpPBvgg5jjhJ4Nji+KamTtZFGUrcVV+2Jo2Qn8DICxLqJn5xJ3aLRolOuEqItZAYeIAJqTevYDDwi7bpBfo9uitqElyzbfNUFWe1RS0wMu2NhMj50WYgjofaEeECrih2iFLpgQI0PJzqmYxvAYn4RG01ks4SKUfrNZYQwFVRE49phNjyX6bvmYlhs2E9mAovdbFma5zSK6c1j82M5Xqg8z74t8JvO5hJA/t5ai0l7vaAbqTUewJFKpt4IcmSasWriKxSE5WtbhxdEx3oisVqaLRbbxH3HJFyofxZRBfgRoHc5PPtpnvAXQgDR+IPlTJoJQJzE+kIhkXn53wy1CmXBCvFg3dAeH7zE+QLgkH91V2if3P0qMA5u+bUgicfRyNpD2uDf+BjiUuL0YmoqQRdZN6JreE9/hlk9GebZn7C62zU/ICfI8y76vUvgQv4Kfl8Q0PZb+ec8IbLKcOqPAbY+jBqSMeBVbHv4Pb6gKQR49slB0RZPDU9UzbsMpIOGIRR+CM7SyCy1Dyfdd0saL28U5LOH9eq8jGtosrRnDQD6a5z2PZLC73V/giZ2hD5sBNewW6SAo=
